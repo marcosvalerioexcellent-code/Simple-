@@ -268,20 +268,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // LER ARQUIVOS E IMAGENS
+        // LER PLANILHA DO BANCO
         let planilhaBase64Url = "";
         onValue(ref(db, 'site_data/planilha_file'), (snapshot) => { if (snapshot.val()) { planilhaBase64Url = snapshot.val(); } });
-
-        const imagePreviewHero = document.getElementById('imagePreviewHero');
-        const heroImageContainer = document.getElementById('heroImageContainer');
-        const imagePreviewAuthor = document.getElementById('imagePreviewAuthor');
-        const authorIconPlaceholder = document.getElementById('authorIconPlaceholder');
-        const authorImageContainer = document.getElementById('authorImageContainer');
-
-        onValue(ref(db, 'site_images/hero_planilha'), (snapshot) => { if (snapshot.val()) { imagePreviewHero.src = snapshot.val(); imagePreviewHero.style.display = 'block'; } });
-        onValue(ref(db, 'site_images/author_photo'), (snapshot) => { if (snapshot.val()) { imagePreviewAuthor.src = snapshot.val(); imagePreviewAuthor.style.display = 'block'; authorIconPlaceholder.style.display = 'none'; } });
-        onValue(ref(db, 'site_images/hero_planilha_width'), (snapshot) => { if (snapshot.val()) { heroImageContainer.style.width = snapshot.val(); heroImageContainer.style.maxWidth = '100%'; } });
-        onValue(ref(db, 'site_images/author_photo_width'), (snapshot) => { if (snapshot.val()) { authorImageContainer.style.width = snapshot.val(); authorImageContainer.style.maxWidth = '100%'; } });
 
         // CONTROLE DE 24H
         function checkUserAccess() {
@@ -299,18 +288,25 @@
         }
         checkUserAccess();
 
-        // FUNÇÃO DE DOWNLOAD ATUALIZADA PARA .ZIP
         function downloadPlanilha() {
             if (!planilhaBase64Url) { alert("O arquivo está sendo preparado ou atualizado no momento. Tente novamente em instantes."); return; }
-            const a = document.createElement('a'); 
-            a.href = planilhaBase64Url; 
-            a.download = "SIMPLE+.zip"; 
-            document.body.appendChild(a); 
-            a.click(); 
-            document.body.removeChild(a);
+            const a = document.createElement('a'); a.href = planilhaBase64Url; a.download = "SIMPLE+.zip";
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
         document.getElementById('btnDownloadHero').addEventListener('click', downloadPlanilha);
         document.getElementById('btnDownloadOffer').addEventListener('click', downloadPlanilha);
+
+        // LER IMAGENS E TAMANHOS
+        const imagePreviewHero = document.getElementById('imagePreviewHero');
+        const heroImageContainer = document.getElementById('heroImageContainer');
+        const imagePreviewAuthor = document.getElementById('imagePreviewAuthor');
+        const authorIconPlaceholder = document.getElementById('authorIconPlaceholder');
+        const authorImageContainer = document.getElementById('authorImageContainer');
+
+        onValue(ref(db, 'site_images/hero_planilha'), (snapshot) => { if (snapshot.val()) { imagePreviewHero.src = snapshot.val(); imagePreviewHero.style.display = 'block'; } });
+        onValue(ref(db, 'site_images/author_photo'), (snapshot) => { if (snapshot.val()) { imagePreviewAuthor.src = snapshot.val(); imagePreviewAuthor.style.display = 'block'; authorIconPlaceholder.style.display = 'none'; } });
+        onValue(ref(db, 'site_images/hero_planilha_width'), (snapshot) => { if (snapshot.val()) { heroImageContainer.style.width = snapshot.val(); heroImageContainer.style.maxWidth = '100%'; } });
+        onValue(ref(db, 'site_images/author_photo_width'), (snapshot) => { if (snapshot.val()) { authorImageContainer.style.width = snapshot.val(); authorImageContainer.style.maxWidth = '100%'; } });
 
         // FUNÇÃO DE COPIAR O PIX
         window.copiarChavePix = function() {
@@ -361,7 +357,8 @@
                                     document.getElementById('pixContainer').style.display = 'block';
                                     
                                     const transactionData = data.point_of_interaction.transaction_data;
-                                    document.getElementById('pixQrCode').src = "data:image/jpeg;base64," + transactionData.qr_code_base64;
+                                    // Usei image/png que é o mais compatível
+                                    document.getElementById('pixQrCode').src = "data:image/png;base64," + transactionData.qr_code_base64;
                                     document.getElementById('pixCopiaCola').value = transactionData.qr_code;
 
                                     iniciarVerificacaoReal(data.id);
@@ -369,8 +366,17 @@
                                 else if (data.status === 'approved') {
                                     liberarAcesso();
                                 }
+                                else {
+                                    // NOVO: SE DER ERRO (COMO COMPRAR DE SI MESMA), AVISA NA TELA!
+                                    let erroMsg = "Recusado pelo Mercado Pago.";
+                                    if(data.message) erroMsg = data.message;
+                                    if(data.cause && data.cause.length > 0) erroMsg = data.cause[0].description;
+                                    
+                                    alert("Não foi possível gerar o PIX:\n" + erroMsg + "\n\nDica: Você não pode testar a compra usando o mesmo E-mail ou CPF que recebe o dinheiro.");
+                                    document.getElementById('paymentBrick_container').style.display = 'block';
+                                }
                             } catch (error) {
-                                alert("Ocorreu um erro ao gerar o pagamento. Tente novamente.");
+                                alert("Ocorreu um erro ao gerar o pagamento no servidor. Verifique o arquivo api/pagar.js");
                                 document.getElementById('paymentBrick_container').style.display = 'block';
                                 document.getElementById('gerandoPagamento').style.display = 'none';
                             }
