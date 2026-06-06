@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMPLE+ | Planilha Financeira Automatizada</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+
+    <style>
+        :root {
+            --verde-claro: #0a8a4e; --verde-escuro: #004b2b; --fundo-bg: #040906;
+            --fundo-card: #08110b; --fundo-card-hover: #0c1810; --texto-cinza: #a1a1aa; --branco: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        body { background-color: var(--fundo-bg); color: var(--branco); overflow-x: hidden; line-height: 1.6; }
+        .container { width: 90%; max-width: 1200px; margin: auto; }
+
+        /* --- ANIMAÇÕES DE SCROLL --- */
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* --- BOTOES --- */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            background: linear-gradient(135deg, var(--verde-claro), var(--verde-escuro));
+            color: var(--branco); padding: 18px 45px; font-size: 20px; font-weight: 800;
+            text-decoration: none; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(10, 138, 78, 0.3); transition: all .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255,255,255,0.1); cursor: pointer; border: none;
+        }
+        .btn:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(10, 138, 78, 0.5); background: linear-gradient(135deg, #0da35d, var(--verde-escuro)); }
+        .btn-download { background: linear-gradient(135deg, #2563eb, #1e40af); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+        .btn-download:hover { background: linear-gradient(135deg, #3b82f6, #1e3a8a); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5); }
+
+        /* --- MODAL DE PAGAMENTO --- */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .modal.show { display: flex; opacity: 1; }
+        .modal-content {
+            background: var(--branco); border-radius: 15px; width: 90%; max-width: 500px;
+            padding: 20px; position: relative; box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            transform: translateY(-20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto;
+        }
+        .modal.show .modal-content { transform: translateY(0); }
+        .close-modal { position: absolute; right: 20px; top: 15px; font-size: 24px; font-weight: bold; color: #333; cursor: pointer; z-index: 10; }
+        .loading-payment { text-align: center; color: #333; padding: 40px 20px; display: none; }
+        .loading-payment i { font-size: 40px; color: var(--verde-claro); margin-bottom: 15px; }
+
+        /* --- ESTRUTURA GERAL --- */
+        .section { padding: 100px 0; position: relative; }
+        .separator { height: 1px; background: linear-gradient(90deg, transparent, rgba(10, 138, 78, 0.3), transparent); width: 100%; }
+        .section-title { font-size: 48px; font-weight: 900; margin-bottom: 50px; text-align: center; background: linear-gradient(135deg, #fff 30%, var(--verde-claro)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: -1px; }
+
+        .hero { padding: 120px 0 100px 0; position: relative; background: radial-gradient(circle at top right, rgba(0, 75, 43, 0.2), transparent 60%), linear-gradient(rgba(4, 9, 6, 0.95), rgba(4, 9, 6, 0.98)), url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; }
+        .hero-content { display: flex; align-items: center; justify-content: space-between; gap: 50px; }
+        .hero-text { flex: 1; }
+        .badge { display: inline-block; padding: 8px 16px; background: rgba(10, 138, 78, 0.1); border: 1px solid var(--verde-claro); color: var(--verde-claro); font-weight: 700; font-size: 14px; letter-spacing: 2px; border-radius: 5px; margin-bottom: 25px; }
+        h1 { font-size: 65px; line-height: 1.05; font-weight: 900; color: #fff; margin-bottom: 25px; }
+        h1 span { color: var(--verde-claro); background: linear-gradient(135deg, var(--verde-claro), #18c36a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { font-size: 22px; color: var(--texto-cinza); margin-bottom: 35px; font-weight: 400; }
+        .hero ul { list-style: none; margin-bottom: 40px; }
+        .hero li { margin: 15px 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        .hero li i { color: var(--verde-claro); }
+
+        .hero-image-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .image-container { position: relative; max-width: 550px; width: 100%; z-index: 2; transition: all 0.1s ease-out; animation: float 6s ease-in-out infinite; }
+        .image-container img { width: 100%; height: auto; display: block; background-color: transparent; filter: drop-shadow(0px 20px 30px rgba(0,0,0,0.5)); }
+
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+
+        .benefits { background: linear-gradient(90deg, var(--verde-escuro), var(--verde-claro)); padding: 40px 0; color: var(--branco); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); position: relative; z-index: 10; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; text-align: center; }
+        .icon-benefit { margin-bottom: 15px; font-size: 32px; color: var(--branco); }
+        .card-benefit h3 { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
+        .card-benefit p { font-size: 14px; font-weight: 500; opacity: 0.9; }
+
+        .pain-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; }
+        .pain-card { background: linear-gradient(135deg, #121814, var(--fundo-card)); padding: 35px; border-radius: 15px; font-size: 18px; font-weight: 600; border: 1px solid #1a241d; border-left: 5px solid #ef4444; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+        
+        .learn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+        .learn-card { background: linear-gradient(135deg, var(--fundo-card), #050a07); padding: 35px 30px; border-radius: 16px; border: 1px solid #1a241d; transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease, opacity 0.8s ease-out; }
+        .learn-card i { color: var(--verde-claro); font-size: 30px; margin-bottom: 20px; transition: transform 0.3s ease; }
+        .learn-card h3 { color: var(--branco); margin-bottom: 12px; font-size: 20px; font-weight: 800; }
+        .learn-card p { color: var(--texto-cinza); font-size: 15px; line-height: 1.5; }
+        .learn-card.active:hover { transform: translateY(-10px); border-color: var(--verde-claro); background: linear-gradient(135deg, var(--fundo-card-hover), #0a1710); box-shadow: 0 15px 30px rgba(10, 138, 78, 0.25); cursor: pointer; }
+        .learn-card.active:hover i { transform: scale(1.1); }
+
+        .author-content { display: flex; align-items: center; gap: 60px; position: relative; }
+        .author-img-wrapper { position: relative; width: 100%; max-width: 400px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; background-color: transparent; transition: all 0.1s ease-out; }
+        .author-img-wrapper img { width: 100%; height: auto; display: block; background-color: transparent; object-fit: contain; filter: drop-shadow(0px 10px 20px rgba(0,0,0,0.4)); }
+        #authorIconPlaceholder { text-align: center; background: linear-gradient(135deg, var(--fundo-card), var(--verde-escuro)); border-radius: 24px; padding: 60px 40px; width: 100%; border: 1px solid rgba(10, 138, 78, 0.3); }
+        #authorIconPlaceholder i { font-size: 80px; color: var(--verde-claro); margin-bottom: 20px; }
+        #authorIconPlaceholder h3 { font-size: 28px; color: var(--branco); font-weight: 900;}
+        .author-text { flex: 1; font-size: 18px; line-height: 1.8; color: var(--texto-cinza); }
+        .author-text h2 { margin-bottom: 20px; text-align: left; }
+        .author-text strong { color: var(--branco); }
+        .company-contacts { margin-top: 30px; display: flex; flex-direction: column; gap: 15px; }
+        .company-contacts a { color: var(--verde-claro); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; font-size: 16px; transition: 0.3s; }
+
+        .offer { background: linear-gradient(180deg, var(--fundo-bg), #02140a); text-align: center; }
+        .new-price { font-size: 96px; font-weight: 900; color: var(--verde-claro); line-height: 1; margin: 15px 0; text-shadow: 0 0 40px rgba(10, 138, 78, 0.3); }
+        .footer { padding: 40px; text-align: center; background: #020604; border-top: 1px solid #0f1a13; color: var(--texto-cinza); font-size: 14px; }
+
+        @media (max-width: 1024px) { h1 { font-size: 52px; } .section-title { font-size: 40px; } .learn-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .hero-content { flex-direction: column; text-align: center; gap: 40px; }
+            h1 { font-size: 42px; }
+            .image-container, .author-img-wrapper { margin: 0 auto !important; max-width: 100% !important; }
+            .grid-4 { grid-template-columns: repeat(2, 1fr); } .pain-grid { grid-template-columns: 1fr; }
+            .author-content { flex-direction: column; text-align: center; gap: 60px; } .author-text h2 { text-align: center; } .new-price { font-size: 70px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <div id="paymentBrick_container"></div>
+            <div id="paymentStatus" class="loading-payment">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <h3 id="statusText">VERIFICANDO PAGAMENTO...</h3>
+                <p>Estamos confirmando a transação.</p>
+            </div>
+        </div>
+    </div>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text reveal">
+                    <div class="badge">PLANILHA EM EXCEL</div>
+                    <h1>SIMPLE<span>+</span></h1>
+                    <p class="subtitle" id="heroSubtitle">Organize suas finanças de forma simples, inteligente e eficiente com nossa planilha financeira automatizada.</p>
+                    <ul>
+                        <li><i class="fa-solid fa-check-circle"></i> Controle total de Entradas e Saídas</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Cálculos 100% Automáticos</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Dashboards e Gráficos Dinâmicos</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Sem Mensalidades - Pagamento Único</li>
+                    </ul>
+                    <button class="btn btn-buy" onclick="openCheckout()">
+                        <i class="fa-solid fa-cart-shopping"></i> Quero minha Planilha
+                    </button>
+                    <button class="btn btn-download" id="btnDownloadHero" style="display: none;">
+                        <i class="fa-solid fa-download"></i> Baixar Planilha
+                    </button>
+                </div>
+                <div class="hero-image-wrapper reveal">
+                    <div class="image-container" id="heroImageContainer">
+                        <img id="imagePreviewHero" src="" alt="Dashboard da Planilha SIMPLE+" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="benefits">
+        <div class="container">
+            <div class="grid-4">
+                <div class="card-benefit reveal"><div class="icon-benefit"><i class="fa-solid fa-bolt"></i></div><h3>Automatizada</h3><p>Sem retrabalho manual.</p></div>
+                <div class="card-benefit reveal"><div class="icon-benefit"><i class="fa-solid fa-chart-pie"></i></div><h3>Visual Gráfico</h3><p>Dashboards intuitivos.</p></div>
+                <div class="card-benefit reveal"><div class="icon-benefit"><i class="fa-solid fa-unlock-keyhole"></i></div><h3>Acesso Vitalício</h3><p>Baixou, é sua para sempre.</p></div>
+                <div class="card-benefit reveal"><div class="icon-benefit"><i class="fa-solid fa-shield-halved"></i></div><h3>Segura</h3><p>Seus dados locais protegidos.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title reveal">Você se identifica com isso?</h2>
+            <div class="pain-grid">
+                <div class="pain-card reveal"><i class="fa-solid fa-xmark"></i> Perde horas tentando fechar o caixa e organizar as contas do mês</div>
+                <div class="pain-card reveal"><i class="fa-solid fa-xmark"></i> Sente que o dinheiro entra, mas não sabe para onde está indo</div>
+                <div class="pain-card reveal"><i class="fa-solid fa-xmark"></i> Paga mensalidades caras em sistemas complexos que não usa direito</div>
+                <div class="pain-card reveal"><i class="fa-solid fa-xmark"></i> Tem dificuldades para controlar os investimentos e traçar metas</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="separator"></div>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title reveal">Por que escolher a SIMPLE+?</h2>
+            <div class="learn-grid">
+                <div class="learn-card reveal"><i class="fa-solid fa-chart-line"></i><h3>Dashboard Dinâmico</h3><p>Gráficos em tempo real para tomada de decisões.</p></div>
+                <div class="learn-card reveal"><i class="fa-solid fa-gears"></i><h3>Automatizada</h3><p>Cálculos e atualizações de saldos instantâneos.</p></div>
+                <div class="learn-card reveal"><i class="fa-regular fa-hand-pointer"></i><h3>Simples de Usar</h3><p>Interface intuitiva e prática no Excel.</p></div>
+                <div class="learn-card reveal"><i class="fa-solid fa-money-bill-transfer"></i><h3>Entradas e Saídas</h3><p>Controle absoluto do seu fluxo de caixa.</p></div>
+                <div class="learn-card reveal"><i class="fa-solid fa-piggy-bank"></i><h3>Investimentos</h3><p>Mapeie aportes e acompanhe seu patrimônio.</p></div>
+                <div class="learn-card reveal"><i class="fa-solid fa-bullseye"></i><h3>Registro de Metas</h3><p>Acompanhe objetivos rumo à liberdade financeira.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="separator"></div>
+
+    <section class="section author">
+        <div class="container">
+            <div class="author-content">
+                <div class="author-img-wrapper reveal" id="authorImageContainer">
+                    <div id="authorIconPlaceholder"><i class="fa-solid fa-laptop-code"></i><h3>Excellent<br>Services</h3></div>
+                    <img id="imagePreviewAuthor" src="" alt="Foto Excellent Services" style="display: none;">
+                </div>
+                <div class="author-text reveal">
+                    <h2 class="section-title" style="text-align: left; margin-bottom: 20px;">Quem desenvolveu?</h2>
+                    <p>A <strong>Excellent Services</strong> é uma empresa especializada em criar soluções sob medida em tecnologia. Desenvolvemos planilhas, sistemas e aplicativos de forma personalizada para otimizar negócios e automatizar tarefas.</p><br>
+                    <p>Ao longo da nossa trajetória, <strong>já ajudamos diversas empresas com nossas soluções</strong>, somando vários clientes satisfeitos que transformaram suas rotinas financeiras e operacionais com as nossas ferramentas.</p>
+                    <div class="company-contacts">
+                        <a href="https://instagram.com/excellentservices.excel" target="_blank"><i class="fa-brands fa-instagram"></i> @excellentservices.excel</a>
+                        <a href="https://www.excellentservices.com.br" target="_blank"><i class="fa-solid fa-globe"></i> www.excellentservices.com.br</a>
+                        <a href="https://wa.me/5511934664498" target="_blank"><i class="fa-brands fa-whatsapp"></i> (11) 93466-4498</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="separator"></div>
+
+    <section class="section offer">
+        <div class="container reveal">
+            <h2 class="section-title">Assuma o controle das suas finanças</h2>
+            <div class="new-price">R$ 100,00</div>
+            <p class="offer-info">Pagamento único • Planilha vitalícia • Suporte incluso</p>
+            <button class="btn btn-buy" onclick="openCheckout()" style="margin-top: 20px;"><i class="fa-solid fa-cart-shopping"></i> Comprar Agora</button>
+            <button class="btn btn-download" id="btnDownloadOffer" style="display: none; margin-top: 20px;"><i class="fa-solid fa-download"></i> Baixar Planilha</button>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container"><p>© 2026 Excellent Services - Todos os direitos reservados.</p></div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const reveals = document.querySelectorAll(".reveal");
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add("active"); });
+            }, { threshold: 0.1 });
+            reveals.forEach(reveal => observer.observe(reveal));
+        });
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbr3SgZVJZuubqj8TGHaeBv8EJbCgXvn0",
+            authDomain: "planilhasimple.firebaseapp.com",
+            projectId: "planilhasimple",
+            storageBucket: "planilhasimple.firebasestorage.app",
+            messagingSenderId: "71116250745",
+            appId: "1:71116250745:web:51a2e7c27b2766f2f0bea8",
+            databaseURL: "https://planilhasimple-default-rtdb.firebaseio.com"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // LER PLANILHA DO BANCO
+        let planilhaBase64Url = "";
+        onValue(ref(db, 'site_data/planilha_file'), (snapshot) => { if (snapshot.val()) { planilhaBase64Url = snapshot.val(); } });
+
+        // CONTROLE DE 24H
+        function checkUserAccess() {
+            const purchaseData = JSON.parse(localStorage.getItem('simplePlus_purchase'));
+            if (purchaseData) {
+                const now = new Date().getTime();
+                if ((now - purchaseData.timestamp) / (1000 * 60 * 60) < 24) {
+                    document.querySelectorAll('.btn-buy').forEach(btn => btn.style.display = 'none');
+                    document.querySelectorAll('.btn-download').forEach(btn => btn.style.display = 'inline-flex');
+                    document.getElementById('heroSubtitle').innerHTML = "<strong style='color: var(--verde-claro)'>Obrigado pela compra!</strong> Sua planilha está liberada para download pelas próximas 24 horas.";
+                } else {
+                    localStorage.removeItem('simplePlus_purchase');
+                }
+            }
+        }
+        checkUserAccess();
+
+        function downloadPlanilha() {
+            if (!planilhaBase64Url) { alert("A planilha está sendo preparada ou atualizada no momento. Tente novamente em instantes."); return; }
+            const a = document.createElement('a'); a.href = planilhaBase64Url; a.download = "SIMPLE_PLUS_ExcellentServices.xlsx";
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+        document.getElementById('btnDownloadHero').addEventListener('click', downloadPlanilha);
+        document.getElementById('btnDownloadOffer').addEventListener('click', downloadPlanilha);
+
+        // LER IMAGENS E TAMANHOS
+        const imagePreviewHero = document.getElementById('imagePreviewHero');
+        const heroImageContainer = document.getElementById('heroImageContainer');
+        const imagePreviewAuthor = document.getElementById('imagePreviewAuthor');
+        const authorIconPlaceholder = document.getElementById('authorIconPlaceholder');
+        const authorImageContainer = document.getElementById('authorImageContainer');
+
+        onValue(ref(db, 'site_images/hero_planilha'), (snapshot) => { if (snapshot.val()) { imagePreviewHero.src = snapshot.val(); imagePreviewHero.style.display = 'block'; } });
+        onValue(ref(db, 'site_images/author_photo'), (snapshot) => { if (snapshot.val()) { imagePreviewAuthor.src = snapshot.val(); imagePreviewAuthor.style.display = 'block'; authorIconPlaceholder.style.display = 'none'; } });
+        onValue(ref(db, 'site_images/hero_planilha_width'), (snapshot) => { if (snapshot.val()) { heroImageContainer.style.width = snapshot.val(); heroImageContainer.style.maxWidth = '100%'; } });
+        onValue(ref(db, 'site_images/author_photo_width'), (snapshot) => { if (snapshot.val()) { authorImageContainer.style.width = snapshot.val(); authorImageContainer.style.maxWidth = '100%'; } });
+
+        // MERCADO PAGO E POLLING
+        const mp = new MercadoPago('APP_USR-8e1defa1-63bf-409e-bd70-67a6c600506d', { locale: 'pt-BR' });
+        let paymentPolling;
+        let brickCriado = false; 
+
+        window.openCheckout = function() {
+            const modal = document.getElementById('checkoutModal');
+            modal.classList.add('show');
+            if (brickCriado) return; 
+            
+            const bricksBuilder = mp.bricks();
+            const renderPaymentBrick = async (bricksBuilder) => {
+                const settings = {
+                    initialization: { amount: 100 },
+                    customization: { paymentMethods: { ticket: "all", bankTransfer: "all", creditCard: "all" } },
+                    callbacks: {
+                        onReady: () => { brickCriado = true; },
+                        onSubmit: ({ selectedPaymentMethod, formData }) => {
+                            document.getElementById('paymentBrick_container').style.display = 'none';
+                            document.getElementById('paymentStatus').style.display = 'block';
+                            iniciarVerificacaoPagamento();
+                        },
+                        onError: (error) => { console.error(error); }
+                    }
+                };
+                window.paymentBrickController = await bricksBuilder.create("payment", "paymentBrick_container", settings);
+            };
+            renderPaymentBrick(bricksBuilder);
+        }
+
+        document.getElementById('closeModal').addEventListener('click', () => {
+            document.getElementById('checkoutModal').classList.remove('show');
+            clearInterval(paymentPolling); 
+        });
+
+        function iniciarVerificacaoPagamento() {
+            const statusText = document.getElementById('statusText');
+            let tentativas = 0;
+
+            paymentPolling = setInterval(() => {
+                tentativas++;
+                statusText.innerText = "VERIFICANDO PAGAMENTO... (" + tentativas + ")";
+                
+                if (tentativas >= 3) {
+                    clearInterval(paymentPolling);
+                    statusText.innerText = "Pagamento Aprovado! 🎉";
+                    document.querySelector('.loading-payment i').className = "fa-solid fa-circle-check";
+                    document.querySelector('.loading-payment i').style.color = "var(--verde-claro)";
+                    
+                    localStorage.setItem('simplePlus_purchase', JSON.stringify({ status: 'approved', timestamp: new Date().getTime() }));
+
+                    setTimeout(() => {
+                        document.getElementById('checkoutModal').classList.remove('show');
+                        checkUserAccess(); 
+                        alert("Pagamento confirmado! Você já pode baixar a planilha.");
+                    }, 2000);
+                }
+            }, 5000); 
+        }
+    </script>
+</body>
+</html>
