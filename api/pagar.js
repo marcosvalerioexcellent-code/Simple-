@@ -1,11 +1,16 @@
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
 
-    // Seu Token de Produção Seguro
+    // Seu Token de Produção
     const token = 'APP_USR-3569449772779176-060613-4d4da2ad2c692ef18312e0c083055cde-3454161966';
-    const body = req.body;
+    
+    // Garante que a leitura do corpo da requisição seja perfeita
+    let body = req.body;
+    if (typeof body === 'string') {
+        body = JSON.parse(body);
+    }
 
-    // TRAVA DE SEGURANÇA: Valor fixo de R$ 100,00 no servidor.
+    // Trava de segurança no servidor
     body.transaction_amount = 100;
     body.description = 'Planilha SIMPLE+ | Excellent Services';
 
@@ -21,7 +26,8 @@ export default async function handler(req, res) {
         });
 
         const data = await mpResponse.json();
-        res.status(200).json(data);
+        // Devolvemos a resposta exata para o site conseguir ler se deu erro ou sucesso
+        res.status(200).json(data); 
     } catch (error) {
         res.status(500).json({ error: 'Erro interno no servidor' });
     }
