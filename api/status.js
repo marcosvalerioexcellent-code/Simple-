@@ -1,8 +1,9 @@
 export default async function handler(req, res) {
-    const token = 'APP_USR-3569449772779176-060613-4d4da2ad2c692ef18312e0c083055cde-3454161966';
+    // Token de Produção REAL (deve ser o mesmo usado em pagar.js)
+    const token = 'APP_USR-4224848946478822-060613-ae9dcb429626bbeb6640bc1d9f56d166-214182211';
     const { id } = req.query;
 
-    if (!id) return res.status(400).json({ error: 'ID ausente' });
+    if (!id) return res.status(400).json({ error: 'ID da transação ausente' });
 
     try {
         const mpResponse = await fetch(`https://api.mercadopago.com/v1/payments/${id}`, {
@@ -11,6 +12,6 @@ export default async function handler(req, res) {
         const data = await mpResponse.json();
         res.status(200).json({ status: data.status });
     } catch (error) {
-        res.status(500).json({ error: 'Erro interno no servidor' });
+        res.status(500).json({ error: 'Erro ao verificar status' });
     }
 }

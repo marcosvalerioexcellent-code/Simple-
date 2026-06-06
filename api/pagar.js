@@ -1,32 +1,33 @@
 export default async function handler(req, res) {
-    // Permissões de segurança para o Vercel não bloquear seu site
-    res.setHeader('Access-Control-Allow-Credentials', true);
+    // Configuração de CORS para permitir requisições do seu site
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    // Libera a checagem de segurança do navegador (Preflight)
     if (req.method === 'OPTIONS') {
         res.status(200).end();
         return;
     }
 
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Método não permitido' });
-    }
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
 
-    // Seu Token de Produção
-    const token = 'APP_USR-3569449772779176-060613-4d4da2ad2c692ef18312e0c083055cde-3454161966';
+    // Token de Produção REAL
+    const token = 'APP_USR-4224848946478822-060613-ae9dcb429626bbeb6640bc1d9f56d166-214182211';
     
-    // Garante que o Vercel consiga ler os dados corretamente
     let body = req.body;
-    if (typeof body === 'string') {
-        body = JSON.parse(body);
-    }
+    if (typeof body === 'string') body = JSON.parse(body);
 
-    // Trava de segurança no servidor para ninguém alterar o preço no código
-    body.transaction_amount = 100;
-    body.description = 'Planilha SIMPLE+ | Excellent Services';
+    // Dados da transação (fixos para segurança)
+    const payload = {
+        transaction_amount: 100,
+        description: 'Planilha SIMPLE+',
+        payment_method_id: 'pix',
+        payer: {
+            email: body.payer?.email || 'cliente@exemplo.com',
+            first_name: 'Cliente',
+            last_name: 'Simple'
+        }
+    };
 
     try {
         const mpResponse = await fetch('https://api.mercadopago.com/v1/payments', {
@@ -34,17 +35,14 @@ export default async function handler(req, res) {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
-                // Uma chave única exigida pelo MP para não duplicar cobranças
-                'X-Idempotency-Key': Math.random().toString(36).substring(7) 
+                'X-Idempotency-Key': Math.random().toString(36).substring(7)
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify(payload)
         });
 
         const data = await mpResponse.json();
-        
-        // Devolve a resposta exata para o site
         res.status(200).json(data); 
     } catch (error) {
-        res.status(500).json({ error: 'Erro interno no servidor do Vercel' });
+        res.status(500).json({ error: 'Erro ao processar pagamento no servidor' });
     }
 }
