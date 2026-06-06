@@ -7,54 +7,36 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://sdk.mercadopago.com/js/v2"></script>
 
     <style>
-        :root {
-            --verde-claro: #0a8a4e; --verde-escuro: #004b2b; --fundo-bg: #040906;
-            --fundo-card: #08110b; --fundo-card-hover: #0c1810; --texto-cinza: #a1a1aa; --branco: #ffffff;
-        }
-
+        :root { --verde-claro: #0a8a4e; --verde-escuro: #004b2b; --fundo-bg: #040906; --fundo-card: #08110b; --fundo-card-hover: #0c1810; --texto-cinza: #a1a1aa; --branco: #ffffff; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
         body { background-color: var(--fundo-bg); color: var(--branco); overflow-x: hidden; line-height: 1.6; }
         .container { width: 90%; max-width: 1200px; margin: auto; }
-
-        /* --- ANIMAÇÕES DE SCROLL --- */
         .reveal { opacity: 0; transform: translateY(50px); transition: all 0.8s ease-out; }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
-        /* --- BOTOES --- */
-        .btn {
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            background: linear-gradient(135deg, var(--verde-claro), var(--verde-escuro));
-            color: var(--branco); padding: 18px 45px; font-size: 20px; font-weight: 800;
-            text-decoration: none; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(10, 138, 78, 0.3); transition: all .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255,255,255,0.1); cursor: pointer; border: none;
-        }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, var(--verde-claro), var(--verde-escuro)); color: var(--branco); padding: 18px 45px; font-size: 20px; font-weight: 800; text-decoration: none; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(10, 138, 78, 0.3); transition: all .3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; border: none; }
         .btn:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(10, 138, 78, 0.5); background: linear-gradient(135deg, #0da35d, var(--verde-escuro)); }
         .btn-download { background: linear-gradient(135deg, #2563eb, #1e40af); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
         .btn-download:hover { background: linear-gradient(135deg, #3b82f6, #1e3a8a); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5); }
 
-        /* --- MODAL DE PAGAMENTO --- */
-        .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.3s ease;
-        }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
         .modal.show { display: flex; opacity: 1; }
-        .modal-content {
-            background: var(--branco); border-radius: 15px; width: 90%; max-width: 500px;
-            padding: 20px; position: relative; box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-            transform: translateY(-20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto;
-        }
+        .modal-content { background: var(--branco); border-radius: 15px; width: 90%; max-width: 500px; padding: 20px; position: relative; box-shadow: 0 15px 50px rgba(0,0,0,0.5); transform: translateY(-20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
         .modal.show .modal-content { transform: translateY(0); }
         .close-modal { position: absolute; right: 20px; top: 15px; font-size: 24px; font-weight: bold; color: #333; cursor: pointer; z-index: 10; }
-        .loading-payment { text-align: center; color: #333; padding: 40px 20px; display: none; }
-        .loading-payment i { font-size: 40px; color: var(--verde-claro); margin-bottom: 15px; }
+        
+        #pixContainer { background: var(--fundo-card); padding: 30px 20px; border-radius: 12px; text-align: center; border: 1px solid rgba(10, 138, 78, 0.3); display: none; }
+        #pixContainer h3 { color: var(--branco); margin-bottom: 10px; font-size: 18px; }
+        #pixQrCode { max-width: 200px; width: 100%; border-radius: 10px; border: 4px solid var(--verde-claro); margin: 20px auto; display: block; background: #fff; }
+        #pixCopiaCola { background: #000; border: 1px solid #333; color: var(--texto-cinza); padding: 12px; border-radius: 8px; width: 100%; margin-bottom: 15px; font-family: monospace; font-size: 12px; text-align: center; }
+        .status-silencioso { margin-top: 20px; font-size: 14px; color: var(--texto-cinza); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        
+        .loading-geral { text-align: center; padding: 40px; display: none; }
+        .loading-geral h3 { color: #333; }
 
-        /* --- ESTRUTURA GERAL --- */
         .section { padding: 100px 0; position: relative; }
         .separator { height: 1px; background: linear-gradient(90deg, transparent, rgba(10, 138, 78, 0.3), transparent); width: 100%; }
         .section-title { font-size: 48px; font-weight: 900; margin-bottom: 50px; text-align: center; background: linear-gradient(135deg, #fff 30%, var(--verde-claro)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: -1px; }
@@ -125,11 +107,30 @@
     <div id="checkoutModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" id="closeModal">&times;</span>
+            
             <div id="paymentBrick_container"></div>
-            <div id="paymentStatus" class="loading-payment">
-                <i class="fa-solid fa-circle-notch fa-spin"></i>
-                <h3 id="statusText">VERIFICANDO PAGAMENTO...</h3>
-                <p>Estamos confirmando a transação.</p>
+            
+            <div id="gerandoPagamento" class="loading-geral">
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: var(--verde-claro); margin-bottom: 15px;"></i>
+                <h3>Gerando seu pagamento...</h3>
+            </div>
+
+            <div id="pixContainer">
+                <h3>Escaneie o QR Code ou copie a chave</h3>
+                <img id="pixQrCode" src="" alt="QR Code PIX">
+                <input type="text" id="pixCopiaCola" readonly>
+                <button onclick="copiarChavePix()" class="btn" style="padding: 12px 25px; font-size: 16px; width: 100%;">
+                    <i class="fa-regular fa-copy"></i> Copiar Código PIX
+                </button>
+                <div class="status-silencioso">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Aguardando confirmação do banco...
+                </div>
+            </div>
+
+            <div id="sucessoContainer" class="loading-geral">
+                <i class="fa-solid fa-circle-check" style="font-size: 60px; color: var(--verde-claro); margin-bottom: 15px;"></i>
+                <h3 style="color: var(--verde-claro);">Pagamento Aprovado!</h3>
+                <p>A página será atualizada para liberar seu download.</p>
             </div>
         </div>
     </div>
@@ -151,7 +152,7 @@
                         <i class="fa-solid fa-cart-shopping"></i> Quero minha Planilha
                     </button>
                     <button class="btn btn-download" id="btnDownloadHero" style="display: none;">
-                        <i class="fa-solid fa-download"></i> Baixar Planilha
+                        <i class="fa-solid fa-file-zipper"></i> Baixar SIMPLE+ (.zip)
                     </button>
                 </div>
                 <div class="hero-image-wrapper reveal">
@@ -233,7 +234,7 @@
             <div class="new-price">R$ 100,00</div>
             <p class="offer-info">Pagamento único • Planilha vitalícia • Suporte incluso</p>
             <button class="btn btn-buy" onclick="openCheckout()" style="margin-top: 20px;"><i class="fa-solid fa-cart-shopping"></i> Comprar Agora</button>
-            <button class="btn btn-download" id="btnDownloadOffer" style="display: none; margin-top: 20px;"><i class="fa-solid fa-download"></i> Baixar Planilha</button>
+            <button class="btn btn-download" id="btnDownloadOffer" style="display: none; margin-top: 20px;"><i class="fa-solid fa-file-zipper"></i> Baixar SIMPLE+ (.zip)</button>
         </div>
     </section>
 
@@ -267,35 +268,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // LER PLANILHA DO BANCO
+        // LER ARQUIVOS E IMAGENS
         let planilhaBase64Url = "";
         onValue(ref(db, 'site_data/planilha_file'), (snapshot) => { if (snapshot.val()) { planilhaBase64Url = snapshot.val(); } });
 
-        // CONTROLE DE 24H
-        function checkUserAccess() {
-            const purchaseData = JSON.parse(localStorage.getItem('simplePlus_purchase'));
-            if (purchaseData) {
-                const now = new Date().getTime();
-                if ((now - purchaseData.timestamp) / (1000 * 60 * 60) < 24) {
-                    document.querySelectorAll('.btn-buy').forEach(btn => btn.style.display = 'none');
-                    document.querySelectorAll('.btn-download').forEach(btn => btn.style.display = 'inline-flex');
-                    document.getElementById('heroSubtitle').innerHTML = "<strong style='color: var(--verde-claro)'>Obrigado pela compra!</strong> Sua planilha está liberada para download pelas próximas 24 horas.";
-                } else {
-                    localStorage.removeItem('simplePlus_purchase');
-                }
-            }
-        }
-        checkUserAccess();
-
-        function downloadPlanilha() {
-            if (!planilhaBase64Url) { alert("A planilha está sendo preparada ou atualizada no momento. Tente novamente em instantes."); return; }
-            const a = document.createElement('a'); a.href = planilhaBase64Url; a.download = "SIMPLE_PLUS_ExcellentServices.xlsx";
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        }
-        document.getElementById('btnDownloadHero').addEventListener('click', downloadPlanilha);
-        document.getElementById('btnDownloadOffer').addEventListener('click', downloadPlanilha);
-
-        // LER IMAGENS E TAMANHOS
         const imagePreviewHero = document.getElementById('imagePreviewHero');
         const heroImageContainer = document.getElementById('heroImageContainer');
         const imagePreviewAuthor = document.getElementById('imagePreviewAuthor');
@@ -307,7 +283,45 @@
         onValue(ref(db, 'site_images/hero_planilha_width'), (snapshot) => { if (snapshot.val()) { heroImageContainer.style.width = snapshot.val(); heroImageContainer.style.maxWidth = '100%'; } });
         onValue(ref(db, 'site_images/author_photo_width'), (snapshot) => { if (snapshot.val()) { authorImageContainer.style.width = snapshot.val(); authorImageContainer.style.maxWidth = '100%'; } });
 
-        // MERCADO PAGO E POLLING
+        // CONTROLE DE 24H
+        function checkUserAccess() {
+            const purchaseData = JSON.parse(localStorage.getItem('simplePlus_purchase'));
+            if (purchaseData) {
+                const now = new Date().getTime();
+                if ((now - purchaseData.timestamp) / (1000 * 60 * 60) < 24) {
+                    document.querySelectorAll('.btn-buy').forEach(btn => btn.style.display = 'none');
+                    document.querySelectorAll('.btn-download').forEach(btn => btn.style.display = 'inline-flex');
+                    document.getElementById('heroSubtitle').innerHTML = "<strong style='color: var(--verde-claro)'>Obrigado pela compra!</strong> O seu pacote ZIP está liberado para download pelas próximas 24 horas.";
+                } else {
+                    localStorage.removeItem('simplePlus_purchase');
+                }
+            }
+        }
+        checkUserAccess();
+
+        // FUNÇÃO DE DOWNLOAD ATUALIZADA PARA .ZIP
+        function downloadPlanilha() {
+            if (!planilhaBase64Url) { alert("O arquivo está sendo preparado ou atualizado no momento. Tente novamente em instantes."); return; }
+            const a = document.createElement('a'); 
+            a.href = planilhaBase64Url; 
+            a.download = "SIMPLE+.zip"; 
+            document.body.appendChild(a); 
+            a.click(); 
+            document.body.removeChild(a);
+        }
+        document.getElementById('btnDownloadHero').addEventListener('click', downloadPlanilha);
+        document.getElementById('btnDownloadOffer').addEventListener('click', downloadPlanilha);
+
+        // FUNÇÃO DE COPIAR O PIX
+        window.copiarChavePix = function() {
+            const copyText = document.getElementById("pixCopiaCola");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            navigator.clipboard.writeText(copyText.value);
+            alert("Código PIX copiado com sucesso!");
+        }
+
+        // ================= MERCADO PAGO REAL (INTEGRAÇÃO VERCEL API) =================
         const mp = new MercadoPago('APP_USR-8e1defa1-63bf-409e-bd70-67a6c600506d', { locale: 'pt-BR' });
         let paymentPolling;
         let brickCriado = false; 
@@ -315,7 +329,12 @@
         window.openCheckout = function() {
             const modal = document.getElementById('checkoutModal');
             modal.classList.add('show');
-            if (brickCriado) return; 
+            if (brickCriado) {
+                document.getElementById('paymentBrick_container').style.display = 'block';
+                document.getElementById('pixContainer').style.display = 'none';
+                document.getElementById('sucessoContainer').style.display = 'none';
+                return;
+            }
             
             const bricksBuilder = mp.bricks();
             const renderPaymentBrick = async (bricksBuilder) => {
@@ -324,10 +343,37 @@
                     customization: { paymentMethods: { ticket: "all", bankTransfer: "all", creditCard: "all" } },
                     callbacks: {
                         onReady: () => { brickCriado = true; },
-                        onSubmit: ({ selectedPaymentMethod, formData }) => {
+                        onSubmit: async ({ selectedPaymentMethod, formData }) => {
                             document.getElementById('paymentBrick_container').style.display = 'none';
-                            document.getElementById('paymentStatus').style.display = 'block';
-                            iniciarVerificacaoPagamento();
+                            document.getElementById('gerandoPagamento').style.display = 'block';
+
+                            try {
+                                const response = await fetch('/api/pagar', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(formData)
+                                });
+                                const data = await response.json();
+
+                                document.getElementById('gerandoPagamento').style.display = 'none';
+
+                                if (data.status === 'pending' && data.point_of_interaction) {
+                                    document.getElementById('pixContainer').style.display = 'block';
+                                    
+                                    const transactionData = data.point_of_interaction.transaction_data;
+                                    document.getElementById('pixQrCode').src = "data:image/jpeg;base64," + transactionData.qr_code_base64;
+                                    document.getElementById('pixCopiaCola').value = transactionData.qr_code;
+
+                                    iniciarVerificacaoReal(data.id);
+                                } 
+                                else if (data.status === 'approved') {
+                                    liberarAcesso();
+                                }
+                            } catch (error) {
+                                alert("Ocorreu um erro ao gerar o pagamento. Tente novamente.");
+                                document.getElementById('paymentBrick_container').style.display = 'block';
+                                document.getElementById('gerandoPagamento').style.display = 'none';
+                            }
                         },
                         onError: (error) => { console.error(error); }
                     }
@@ -342,29 +388,34 @@
             clearInterval(paymentPolling); 
         });
 
-        function iniciarVerificacaoPagamento() {
-            const statusText = document.getElementById('statusText');
-            let tentativas = 0;
-
-            paymentPolling = setInterval(() => {
-                tentativas++;
-                statusText.innerText = "VERIFICANDO PAGAMENTO... (" + tentativas + ")";
-                
-                if (tentativas >= 3) {
-                    clearInterval(paymentPolling);
-                    statusText.innerText = "Pagamento Aprovado! 🎉";
-                    document.querySelector('.loading-payment i').className = "fa-solid fa-circle-check";
-                    document.querySelector('.loading-payment i').style.color = "var(--verde-claro)";
+        function iniciarVerificacaoReal(paymentId) {
+            paymentPolling = setInterval(async () => {
+                try {
+                    const res = await fetch(`/api/status?id=${paymentId}`);
+                    const data = await res.json();
                     
-                    localStorage.setItem('simplePlus_purchase', JSON.stringify({ status: 'approved', timestamp: new Date().getTime() }));
-
-                    setTimeout(() => {
-                        document.getElementById('checkoutModal').classList.remove('show');
-                        checkUserAccess(); 
-                        alert("Pagamento confirmado! Você já pode baixar a planilha.");
-                    }, 2000);
+                    if (data.status === 'approved') {
+                        clearInterval(paymentPolling);
+                        liberarAcesso();
+                    }
+                } catch (error) {
+                    console.error("Erro ao verificar status");
                 }
             }, 5000); 
+        }
+
+        function liberarAcesso() {
+            document.getElementById('pixContainer').style.display = 'none';
+            document.getElementById('paymentBrick_container').style.display = 'none';
+            document.getElementById('sucessoContainer').style.display = 'block';
+            
+            localStorage.setItem('simplePlus_purchase', JSON.stringify({ status: 'approved', timestamp: new Date().getTime() }));
+
+            setTimeout(() => {
+                document.getElementById('checkoutModal').classList.remove('show');
+                checkUserAccess(); 
+                alert("Pagamento confirmado! Você já pode baixar os arquivos.");
+            }, 2500);
         }
     </script>
 </body>
