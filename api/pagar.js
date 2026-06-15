@@ -9,17 +9,22 @@ export default async function handler(req, res) {
         return;
     }
 
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Método não permitido' });
+    }
 
     // Token de Produção REAL
     const token = 'APP_USR-4224848946478822-060613-ae9dcb429626bbeb6640bc1d9f56d166-214182211';
-    
-    let body = req.body;
-    if (typeof body === 'string') body = JSON.parse(body);
 
-    // Dados da transação (fixos para segurança)
+    let body = req.body;
+
+    if (typeof body === 'string') {
+        body = JSON.parse(body);
+    }
+
+    // Dados da transação fixos para segurança
     const payload = {
-        transaction_amount: 100,
+        transaction_amount: 50,
         description: 'Planilha SIMPLE+',
         payment_method_id: 'pix',
         payer: {
@@ -41,7 +46,8 @@ export default async function handler(req, res) {
         });
 
         const data = await mpResponse.json();
-        res.status(200).json(data); 
+
+        res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: 'Erro ao processar pagamento no servidor' });
     }
