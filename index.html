@@ -359,6 +359,168 @@
             .badge, .promo-pill { font-size: 11px; }
             .modal-content { padding: 22px 16px; border-radius: 18px; }
         }
+
+
+        /* ===== AJUSTES PREMIUM MOBILE + BRILHO GLOBAL ===== */
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        body, section, .hero, .benefits, .offer, .footer { max-width: 100vw; overflow-x: hidden; }
+        img, canvas, iframe, video, svg { max-width: 100%; }
+        .container, .hero-content, .author-content, .grid-4, .pain-grid, .learn-grid, .offer-bullets { min-width: 0; }
+
+        .btn,
+        .card-benefit,
+        .pain-card,
+        .learn-card,
+        .author-content,
+        .offer .container.reveal,
+        .offer-bullets span,
+        .company-contacts a,
+        #authorIconPlaceholder {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .card-benefit::after,
+        .pain-card::after,
+        .learn-card::after,
+        .author-content::after,
+        .offer .container.reveal::after,
+        .offer-bullets span::after,
+        .company-contacts a::after,
+        #authorIconPlaceholder::after,
+        .btn::after {
+            content: "";
+            position: absolute;
+            top: -45%;
+            left: -90%;
+            width: 70%;
+            height: 190%;
+            background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.05) 28%, rgba(71,240,162,0.24) 48%, rgba(255,255,255,0.08) 62%, transparent 100%);
+            transform: rotate(18deg);
+            pointer-events: none;
+            z-index: 1;
+            animation: softCardGlow 5.8s ease-in-out infinite;
+        }
+
+        .btn::after { animation-duration: 4.2s; }
+        .card-benefit:nth-child(2)::after, .learn-card:nth-child(2)::after, .pain-card:nth-child(2)::after { animation-delay: .6s; }
+        .card-benefit:nth-child(3)::after, .learn-card:nth-child(3)::after, .pain-card:nth-child(3)::after { animation-delay: 1.2s; }
+        .card-benefit:nth-child(4)::after, .learn-card:nth-child(4)::after, .pain-card:nth-child(4)::after { animation-delay: 1.8s; }
+        .learn-card:nth-child(5)::after { animation-delay: 2.4s; }
+        .learn-card:nth-child(6)::after { animation-delay: 3s; }
+
+        @keyframes softCardGlow {
+            0%, 42% { left: -95%; opacity: 0; }
+            50% { opacity: 1; }
+            72% { left: 132%; opacity: 0; }
+            100% { left: 132%; opacity: 0; }
+        }
+
+        .card-benefit > *,
+        .pain-card > *,
+        .learn-card > *,
+        .author-content > *,
+        .offer .container.reveal > *,
+        .offer-bullets span > *,
+        .company-contacts a > *,
+        #authorIconPlaceholder > *,
+        .btn > * { position: relative; z-index: 2; }
+
+        .btn { text-shadow: 0 0 18px rgba(255,255,255,.16); }
+        .btn:hover, .card-benefit:hover, .pain-card:hover, .learn-card:hover, .company-contacts a:hover, .offer-bullets span:hover {
+            box-shadow: 0 20px 60px rgba(21,199,122,.22), 0 0 32px rgba(71,240,162,.10);
+        }
+
+        .new-price {
+            animation: pricePulseGlow 2.6s ease-in-out infinite;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+
+        @keyframes pricePulseGlow {
+            0%, 100% { text-shadow: 0 0 26px rgba(21,199,122,.30), 0 0 52px rgba(21,199,122,.16); filter: brightness(1); }
+            50% { text-shadow: 0 0 46px rgba(71,240,162,.58), 0 0 86px rgba(21,199,122,.28); filter: brightness(1.12); }
+        }
+
+        @media (max-width: 768px) {
+            html, body { overflow-x: hidden !important; }
+            body { min-width: 0; }
+            .container { width: calc(100% - 28px) !important; max-width: 100% !important; margin-inline: auto; }
+            .section { padding: 68px 0; }
+            .hero { padding: 64px 0 56px !important; min-height: auto; }
+            .hero-content { grid-template-columns: minmax(0, 1fr) !important; gap: 30px; width: 100%; }
+            .hero-text { width: 100%; align-items: center; }
+            .badge { max-width: 100%; justify-content: center; text-align: center; }
+            h1 { font-size: clamp(42px, 16vw, 58px) !important; letter-spacing: -2.4px !important; max-width: 100%; }
+            .subtitle { font-size: 15.8px; line-height: 1.58; max-width: 100%; }
+            .hero ul { width: 100%; margin-bottom: 28px; }
+            .hero li { width: 100%; max-width: 100%; font-size: 14.5px; padding: 12px 13px; gap: 9px; border-radius: 14px; }
+            .btn { width: 100%; max-width: 260px; min-height: 52px; padding: 14px 20px; font-size: 14px; }
+            .btn-download { max-width: 320px; }
+            .hero-image-wrapper { width: 100%; min-width: 0; overflow: hidden; }
+            .image-container,
+            #heroImageContainer,
+            .author-img-wrapper,
+            #authorImageContainer {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                margin-inline: auto !important;
+            }
+            .image-container img,
+            .author-img-wrapper img { width: 100% !important; max-width: 100% !important; height: auto; object-fit: contain; }
+            .benefits { padding: 28px 0; }
+            .grid-4, .pain-grid, .learn-grid { grid-template-columns: minmax(0, 1fr) !important; width: 100%; }
+            .grid-4 { gap: 14px; }
+            .card-benefit, .pain-card, .learn-card { width: 100%; max-width: 100%; }
+            .card-benefit { padding: 22px 18px; }
+            .pain-card { padding: 22px 18px; font-size: 14.8px; line-height: 1.55; }
+            .learn-card { padding: 26px 20px; border-radius: 20px; }
+            .section-title { font-size: clamp(28px, 9vw, 38px) !important; line-height: 1.08; margin-bottom: 32px; letter-spacing: -1.4px; overflow-wrap: anywhere; }
+            .author-content { grid-template-columns: minmax(0, 1fr) !important; width: 100%; padding: 24px 18px !important; gap: 30px; }
+            #authorIconPlaceholder { padding: 40px 18px; }
+            .author-text { width: 100%; font-size: 15px; line-height: 1.72; }
+            .company-contacts { width: 100%; }
+            .company-contacts a { width: 100%; justify-content: center; overflow-wrap: anywhere; text-align: center; }
+            .offer .container.reveal { width: calc(100% - 28px) !important; padding: 34px 18px !important; border-radius: 24px; }
+            .price-stack { width: 100%; }
+            .old-price { font-size: clamp(22px, 8vw, 30px); }
+            .new-price { font-size: clamp(54px, 16vw, 72px) !important; letter-spacing: -2.2px !important; line-height: .98; }
+            .new-price small { font-size: .30em; margin-right: 2px; }
+            .offer-lead { margin-top: -12px; font-size: 15px; }
+            .offer-info { font-size: 14.5px; }
+            .offer-bullets { flex-direction: column; align-items: stretch; width: 100%; gap: 10px; }
+            .offer-bullets span { width: 100%; justify-content: center; text-align: center; border-radius: 16px; }
+            .modal { padding: 10px; }
+            .modal-content { width: calc(100vw - 20px); max-width: calc(100vw - 20px); padding: 22px 14px; border-radius: 18px; }
+            #paymentBrick_container, #pixContainer, #sucessoContainer, #gerandoPagamento { max-width: 100%; overflow-x: hidden; }
+            #pixCopiaCola { min-width: 0; font-size: 11px; }
+        }
+
+        @media (max-width: 390px) {
+            .container { width: calc(100% - 22px) !important; }
+            .hero { padding-top: 54px !important; }
+            .hero li { font-size: 13.5px; padding: 11px 11px; }
+            .btn { max-width: 230px; min-height: 50px; }
+            .new-price { font-size: clamp(48px, 15.5vw, 62px) !important; letter-spacing: -1.8px !important; }
+            .offer .container.reveal { width: calc(100% - 22px) !important; padding: 30px 14px !important; }
+            .section-title { font-size: clamp(26px, 8.5vw, 34px) !important; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .btn::after,
+            .card-benefit::after,
+            .pain-card::after,
+            .learn-card::after,
+            .author-content::after,
+            .offer .container.reveal::after,
+            .offer-bullets span::after,
+            .company-contacts a::after,
+            #authorIconPlaceholder::after,
+            .new-price { animation: none !important; }
+        }
+
     </style>
 </head>
 
@@ -409,7 +571,7 @@
                         <li><i class="fa-solid fa-check-circle"></i> Sem Mensalidades - Pagamento Único</li>
                     </ul>
                     <button class="btn btn-buy" onclick="openCheckout()">
-                        <i class="fa-solid fa-cart-shopping"></i> Quero minha Planilha por R$ 50
+                        <i class="fa-solid fa-cart-shopping"></i> Comprar
                     </button>
                     <button class="btn btn-download" id="btnDownloadHero" style="display: none;">
                         <i class="fa-solid fa-file-zipper"></i> Baixar SIMPLE+ (.zip)
@@ -503,7 +665,7 @@
                 <span><i class="fa-solid fa-check"></i> Suporte incluso</span>
             </div>
             <p class="offer-info">Oferta promocional por tempo limitado</p>
-            <button class="btn btn-buy" onclick="openCheckout()" style="margin-top: 22px;"><i class="fa-solid fa-cart-shopping"></i> Comprar por R$ 50</button>
+            <button class="btn btn-buy" onclick="openCheckout()" style="margin-top: 22px;"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
             <button class="btn btn-download" id="btnDownloadOffer" style="display: none; margin-top: 22px;"><i class="fa-solid fa-file-zipper"></i> Baixar SIMPLE+ (.zip)</button>
         </div>
     </section>
