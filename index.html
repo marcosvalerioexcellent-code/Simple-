@@ -367,29 +367,15 @@
         img, canvas, iframe, video, svg { max-width: 100%; }
         .container, .hero-content, .author-content, .grid-4, .pain-grid, .learn-grid, .offer-bullets { min-width: 0; }
 
-        .btn,
-        .card-benefit,
-        .pain-card,
-        .learn-card,
-        .author-content,
-        .offer .container.reveal,
-        .offer-bullets span,
-        .company-contacts a,
-        #authorIconPlaceholder {
+        .btn-buy,
+        .offer .container.reveal {
             position: relative;
             overflow: hidden;
             isolation: isolate;
         }
 
-        .card-benefit::after,
-        .pain-card::after,
-        .learn-card::after,
-        .author-content::after,
-        .offer .container.reveal::after,
-        .offer-bullets span::after,
-        .company-contacts a::after,
-        #authorIconPlaceholder::after,
-        .btn::after {
+        .btn-buy::after,
+        .offer .container.reveal::after {
             content: "";
             position: absolute;
             top: -45%;
@@ -403,12 +389,7 @@
             animation: softCardGlow 5.8s ease-in-out infinite;
         }
 
-        .btn::after { animation-duration: 4.2s; }
-        .card-benefit:nth-child(2)::after, .learn-card:nth-child(2)::after, .pain-card:nth-child(2)::after { animation-delay: .6s; }
-        .card-benefit:nth-child(3)::after, .learn-card:nth-child(3)::after, .pain-card:nth-child(3)::after { animation-delay: 1.2s; }
-        .card-benefit:nth-child(4)::after, .learn-card:nth-child(4)::after, .pain-card:nth-child(4)::after { animation-delay: 1.8s; }
-        .learn-card:nth-child(5)::after { animation-delay: 2.4s; }
-        .learn-card:nth-child(6)::after { animation-delay: 3s; }
+        .btn-buy::after { animation-duration: 4.2s; }
 
         @keyframes softCardGlow {
             0%, 42% { left: -95%; opacity: 0; }
@@ -417,15 +398,8 @@
             100% { left: 132%; opacity: 0; }
         }
 
-        .card-benefit > *,
-        .pain-card > *,
-        .learn-card > *,
-        .author-content > *,
         .offer .container.reveal > *,
-        .offer-bullets span > *,
-        .company-contacts a > *,
-        #authorIconPlaceholder > *,
-        .btn > * { position: relative; z-index: 2; }
+        .btn-buy > * { position: relative; z-index: 2; }
 
         .btn { text-shadow: 0 0 18px rgba(255,255,255,.16); }
         .btn:hover, .card-benefit:hover, .pain-card:hover, .learn-card:hover, .company-contacts a:hover, .offer-bullets span:hover {
@@ -509,15 +483,9 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .btn::after,
-            .card-benefit::after,
-            .pain-card::after,
-            .learn-card::after,
-            .author-content::after,
+            .btn-buy::after,
+            .offer .container.reveal::before,
             .offer .container.reveal::after,
-            .offer-bullets span::after,
-            .company-contacts a::after,
-            #authorIconPlaceholder::after,
             .new-price { animation: none !important; }
         }
 
