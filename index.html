@@ -624,6 +624,33 @@
             border-radius: 12px !important;
         }
 
+
+        /* Corrige apenas os campos de seleção do Mercado Pago */
+        #paymentBrick_container input[type="radio"],
+        #paymentBrick_container input[type="checkbox"] {
+            width: 18px !important;
+            min-width: 18px !important;
+            max-width: 18px !important;
+            height: 18px !important;
+            min-height: 18px !important;
+            max-height: 18px !important;
+            padding: 0 !important;
+            margin: 0 10px 0 0 !important;
+            border-radius: 50% !important;
+            display: inline-block !important;
+            flex: 0 0 18px !important;
+            vertical-align: middle !important;
+            appearance: auto !important;
+            -webkit-appearance: radio !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+
+        #paymentBrick_container input[type="checkbox"] {
+            border-radius: 4px !important;
+            -webkit-appearance: checkbox !important;
+        }
+
         #paymentBrick_container [role="alert"],
         #paymentBrick_container [class*="alert"],
         #paymentBrick_container [class*="Alert"],
@@ -736,6 +763,19 @@
             #paymentBrick_container button {
                 min-height: 40px !important;
                 font-size: 12.5px !important;
+            }
+
+
+            #paymentBrick_container input[type="radio"],
+            #paymentBrick_container input[type="checkbox"] {
+                width: 16px !important;
+                min-width: 16px !important;
+                max-width: 16px !important;
+                height: 16px !important;
+                min-height: 16px !important;
+                max-height: 16px !important;
+                margin-right: 8px !important;
+                flex: 0 0 16px !important;
             }
 
             #paymentBrick_container [role="alert"],
